@@ -16,6 +16,7 @@ def plot_lookup(ax, m: LookupModel):
         v_line = mlines.Line2D(
             [m.stamp_to_x(e.stamp_ns), m.stamp_to_x(e.stamp_ns)],
             [0, 1.0],
+            linewidth=0.5,
             color='#d0d0d0')
         ax.add_line(v_line)
 
@@ -24,7 +25,8 @@ def plot_lookup(ax, m: LookupModel):
         h_line = mlines.Line2D(
             [m.stamp_to_x(m.start_ns), m.stamp_to_x(m.stop_ns)],
             [m.key_to_y(u), m.key_to_y(u)],
-            color='#d0d0d0')
+            linewidth=0.5,
+            color='#d0d0d0')  # grey
         ax.add_line(h_line)
 
     # plot state changes
@@ -35,18 +37,18 @@ def plot_lookup(ax, m: LookupModel):
         x.append(ex)
         y.append(ey)
         c.append(c_)
-        s.append(5.0)
+        s.append(10.0)
 
     for e in m.events:
         for k in e.heard():
-            push(e, k, '#a0d0a0')  # green
+            push(e, k, '#d0d0d0')  # grey
         for k in e.waiting():
-            push(e, k, '#000000')   # black
+            push(e, k, '#ffffff')   # black
         for k in e.queried():
             push(e, k, '#50c050')  # black
         for k in e.unreachable():
-            push(e, k, '#d0a0a0')  # red
-        ax.scatter(x, y, s=s, c=c, alpha=0.7, zorder=5, marker='s')
+            push(e, k, '#c05050')  # red
+        ax.scatter(x, y, s=s, c=c, alpha=1, zorder=5, marker='8')
 
     # plot queries
     for q in m.queries:
@@ -90,8 +92,8 @@ def color_for_query_outcome(q):
 
 
 def set_xticks_for_model(ax, m: LookupModel):
-    ax.set_xticks([m.stamp_to_x(e.stamp_ns) for e in m.events])
-    ax.set_xticklabels([m.stamp_to_x(e.stamp_ns) for e in m.events], rotation='vertical')
+    # ax.set_xticks([m.stamp_to_x(e.stamp_ns) for e in m.events])
+    # ax.set_xticklabels([m.stamp_to_x(e.stamp_ns) for e in m.events], rotation='vertical')
     # span = m.max_x() - m.min_x()
     # ax.set_xlim([m.min_x() - 0.1 * span, m.max_x() + 0.1 * span])
     ax.set_xlim([m.min_x(), m.max_x()])

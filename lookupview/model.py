@@ -23,6 +23,7 @@ class LookupModel:
     id: str
     start_ns: int
     stop_ns: int
+    node: Key
     target: Key
     used: List[Key]  # used is a dict of all keys of peers that were attempted during the lookup
     queries: List[QueryModel]
@@ -56,28 +57,25 @@ class LookupModel:
         closest = None
         for q in self.queries:
             if q.outcome == QUERY_SUCCESS:
-                if not closest or q.peer.to_float() < closest.peer.to_float():
+                if not closest or self.key_to_y(q.peer) < self.key_to_y(closest.peer):
                     closest = q
         return closest
 
-    def find_source_query(self, peer):
+    def find_source_query(self, query):
         for q in self.queries:
-            if q.response:
-                if peer in q.response.heard():
+            # XXX: discover first source query
+            if q.response and q.peer != self.node and q.response.stamp_ns <= query.request.stamp_ns:  # XXX
+                if query.peer in q.response.heard():
                     return q
         return None
 
     def find_path(self):
-        closest = self.find_closest_success_query()
-        if not closest:
-            return []
-        else:
-            path = []
-            next = closest
-            while next:
-                path.append(next)
-                next = self.find_source_query(next.peer)
-            return path
+        path = []
+        next = self.find_closest_success_query()
+        while next:
+            path.append(next)
+            next = self.find_source_query(next)
+        return path
 
 
 def request_events(events):
@@ -128,6 +126,7 @@ def queries_from_events(events):
 def lookup_from_events(events):
     if len(events) < 2:
         raise Exception("Not enough events to plot")
+    # TODO: verify all events same node and target
 
     did = {}
     used = []
@@ -140,6 +139,7 @@ def lookup_from_events(events):
             used.append(x)
 
     for e in events:
+        [push(k) for k in e.heard()]
         if e.request:
             push(e.request.cause)
             push(e.request.source)
@@ -151,6 +151,7 @@ def lookup_from_events(events):
         id=events[0].lookup_id,
         start_ns=events[0].stamp_ns,
         stop_ns=events[-1].stamp_ns,
+        node=events[0].node,
         target=events[0].target,
         used=used,
         queries=queries_from_events(events),
