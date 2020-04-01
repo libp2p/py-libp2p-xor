@@ -6,6 +6,19 @@ from .xor import *
 
 
 @dataclass
+class QueryModel:
+    peer: Key  # peer being queried
+    request: Event  # query request event
+    response: Event  # query response event
+    outcome: str  # success, unreachable, unfinished
+
+
+QUERY_SUCCESS = "success"
+QUERY_UNREACHABLE = "unreachable"
+QUERY_UNFINISHED = "unfinished"
+
+
+@dataclass
 class LookupModel:
     id: str
     start_ns: int
@@ -13,7 +26,7 @@ class LookupModel:
     target: Key
     used: List[Key]  # used is a dict of all keys of peers that were attempted during the lookup
     queries: List[QueryModel]
-    events: List[events]
+    events: List[Event]
 
     def stamp_to_x(self, stamp_ns: int):
         """Return the x-axis value for a given nanosecond timestamp."""
@@ -49,8 +62,9 @@ class LookupModel:
 
     def find_source_query(self, peer):
         for q in self.queries:
-            if peer in q.response.heard:
-                return q
+            if q.response:
+                if peer in q.response.heard():
+                    return q
         return None
 
     def find_path(self):
@@ -62,21 +76,8 @@ class LookupModel:
             next = closest
             while next:
                 path.append(next)
-                next = self.find_source_query(next)
+                next = self.find_source_query(next.peer)
             return path
-
-
-@dataclass
-class QueryModel:
-    peer: Key  # peer being queried
-    request: Event  # query request event
-    response: Event  # query response event
-    outcome: str  # success, unreachable, unfinished
-
-
-QUERY_SUCCESS = "success"
-QUERY_UNREACHABLE = "unreachable"
-QUERY_UNFINISHED = "unfinished"
 
 
 def request_events(events):
@@ -88,22 +89,25 @@ def response_events(events):
 
 
 def request_matches_response(req, resp):
-    if len(req.request.waiting) == 1 and resp.response.cause == req.request.waiting[0]:
-        return resp.response.cause
-    else:
-        return None
+    peer = req.requesting_peer()
+    return peer and resp.responding_peer() == peer
+
+
+def find_matching_response_event(events, req):
+    for resp in response_events(events):
+        if request_matches_response(req, resp):
+            return resp
+    return None
 
 
 def queries_from_events(events):
     queries = []
     for req in request_events(events):
-        for resp in response_events(events):
-            peer = request_matches_response(req, resp)
-            break
-        if peer:
+        resp = find_matching_response_event(events, req)
+        if resp:
             queries.append(
                 QueryModel(
-                    peer=peer,
+                    peer=req.requesting_peer(),
                     request=req,
                     response=resp,
                     outcome=QUERY_SUCCESS if len(resp.response.unreachable) == 0 else QUERY_UNREACHABLE,
@@ -112,7 +116,7 @@ def queries_from_events(events):
         else:
             queries.append(
                 QueryModel(
-                    peer=peer,
+                    peer=req.requesting_peer(),
                     request=req,
                     response=None,
                     outcome=QUERY_UNFINISHED,

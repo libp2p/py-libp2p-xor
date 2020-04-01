@@ -25,6 +25,18 @@ class Key(bytes):
                     f += s
         return f
 
+    def __eq__(self, other):
+        if isinstance(other, Key):
+            return self.hex() == other.hex()
+        else:
+            return False
+
+    def __hash__(self):
+        return hash(self.hex())
+
+    def __str__(self):
+        return self.hex()
+
 
 def xor_key(x: Key, y: Key):
     return Key(bytes([x[k] ^ y[k] for k in range(len(x))]))

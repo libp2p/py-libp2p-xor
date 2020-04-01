@@ -6,6 +6,16 @@ from .xor import *
 
 
 @dataclass
+class StateUpdateEvent:
+    cause: Key  # peer that caused this event
+    source: Key
+    heard: List[Key]
+    waiting: List[Key]
+    queried: List[Key]
+    unreachable: List[Key]
+
+
+@dataclass
 class Event:
     lookup_id: str
     stamp_ns: int
@@ -34,15 +44,17 @@ class Event:
         resp = self.response.unreachable if self.response else []
         return req + resp
 
+    def requesting_peer(self):
+        if self.request and len(self.request.waiting) == 1:
+            return self.request.waiting[0]
+        else:
+            return None
 
-@dataclass
-class StateUpdateEvent:
-    cause: Key  # peer that caused this event
-    source: Key
-    heard: List[Key]
-    waiting: List[Key]
-    queried: List[Key]
-    unreachable: List[Key]
+    def responding_peer(self):
+        if self.response:
+            return self.response.cause
+        else:
+            return None
 
 
 def parse_state_update_from_json(data):
@@ -60,13 +72,14 @@ def parse_state_update_from_json(data):
 
 
 def parse_event_from_json(data):
+    info = data["info"]
     return Event(
-        lookup_id=data["ID"],
-        stamp_ns=data["XXX"],  # XXX
-        node=key_from_base64(data["Node"]["Kad"]),
-        target=key_from_base64(data["Key"]["Kad"]),
-        request=parse_state_update_from_json(data.get("Request")),
-        response=parse_state_update_from_json(data.get("Response")),
+        lookup_id=info["ID"],
+        stamp_ns=data["ts"],
+        node=key_from_base64(info["Node"]["Kad"]),
+        target=key_from_base64(info["Key"]["Kad"]),
+        request=parse_state_update_from_json(info.get("Request")),
+        response=parse_state_update_from_json(info.get("Response")),
     )
 
 
