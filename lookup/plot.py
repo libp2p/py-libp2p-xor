@@ -106,7 +106,7 @@ def set_xticks_for_model(ax, m: LookupModel):
 def set_left_yticks_for_model(ax, m: LookupModel):
     ax.set_ylabel('distance to target')
     ax.set_yticks([m.key_to_y(u) for u in m.used])
-    ax.set_yticklabels([m.key_to_y(u) for u in m.used])
+    ax.set_yticklabels([m.key_to_dist(u) for u in m.used])
     # span = m.max_y() - m.min_y()
     # ax.set_ylim([m.min_y() - 0.1 * span, m.max_y() + 0.1 * span])
     ax.set_ylim([m.min_y(), m.max_y()])

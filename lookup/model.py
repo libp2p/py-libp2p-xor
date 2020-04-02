@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+import math
 
 from .events import *
 from key import *
@@ -28,6 +29,7 @@ class LookupModel:
     used: List[Key]  # used is a dict of all keys of peers that were attempted during the lookup
     queries: List[QueryModel]
     events: List[Event]
+    zoom_level: float
 
     def first_event_containing(self, key):
         for e in self.events:
@@ -46,8 +48,20 @@ class LookupModel:
     def max_x(self):
         return (self.stop_ns - self.start_ns) / 1000000.0
 
+    def zoom(stretch, d):
+        return math.log(stretch * d + 1) / math.log(stretch + 1)
+
+    def zoom_stretch(resolution):
+        return (1.0 - 2 * resolution) / resolution ** 2
+
     def key_to_y(self, key: Key):
         """Return the y-axis value for a given key."""
+        d = self.key_to_dist(key)
+        stretch = LookupModel.zoom_stretch(1.0 / max(2.01, self.zoom_level))
+        y = LookupModel.zoom(stretch, d)
+        return y
+
+    def key_to_dist(self, key: Key):
         return xor_key(self.target, key).to_float()
 
     def min_y(self):
@@ -134,7 +148,7 @@ def queries_from_events(events):
     return queries
 
 
-def lookup_from_events(events):
+def lookup_from_events(events, zoom_level):
     if len(events) < 2:
         raise Exception("Not enough events to plot")
     # TODO: verify all events same node and target
@@ -167,4 +181,5 @@ def lookup_from_events(events):
         used=used,
         queries=queries_from_events(events),
         events=events,
+        zoom_level=float(zoom_level),
     )

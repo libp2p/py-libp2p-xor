@@ -7,7 +7,7 @@ def show_lookup(args):
     lookup_log_filename = args.filename
     id = args.id
     events = lookup.filter_lookup(lookup.load_file(lookup_log_filename), id)
-    model = lookup.lookup_from_events(events)
+    model = lookup.lookup_from_events(events, args.zoom)
     lookup.plot_lookup(model)
 
 
@@ -18,6 +18,7 @@ def parse_args():
     # parser for show lookup
     parser_show_lookup = subparsers.add_parser("showlookup", help="Visualize a lookup.")
     parser_show_lookup.add_argument("--id", metavar="id", help="Lookup ID", required=True)
+    parser_show_lookup.add_argument("--zoom", metavar="zoom", help="Zoom level.", default=4.0)
     parser_show_lookup.add_argument("filename", help="Lookup log file name")
     parser_show_lookup.set_defaults(handler=show_lookup)
 
