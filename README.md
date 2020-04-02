@@ -14,7 +14,7 @@ from the root directory of this repo, run:
 
 You should see:
 
-    ![Lookup visualization](https://raw.githubusercontent.com/libp2p/py-libp2p-xor/master/assets/lookup_sample.png)
+![Lookup visualization](https://raw.githubusercontent.com/libp2p/py-libp2p-xor/master/assets/lookup_sample.png)
 
 ## Contribute
 
