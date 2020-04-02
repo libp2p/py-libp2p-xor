@@ -4,13 +4,13 @@ import matplotlib.lines as mlines
 from .model import *
 
 
-def plot(model: LookupModel):
+def plot_lookup(model: LookupModel):
     fig, ax = plt.subplots(1)
-    plot_lookup(ax, model)
+    plot_lookup_in_subplot(ax, model)
     plt.show()
 
 
-def plot_lookup(ax, m: LookupModel):
+def plot_lookup_in_subplot(ax, m: LookupModel):
     # plot vertical grid lines on event stamps
     for e in m.events:
         v_line = mlines.Line2D(

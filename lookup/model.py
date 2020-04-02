@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from .events import *
-from .xor import *
+from key import *
 
 
 @dataclass

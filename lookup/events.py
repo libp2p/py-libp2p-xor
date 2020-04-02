@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import List
 
-from .xor import *
+from key import *
 
 
 @dataclass

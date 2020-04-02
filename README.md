@@ -10,7 +10,7 @@ apps for analyzing and visualizing Kademlia DHT routing logs.
 The "show lookup" command-line tool visualizes a lookup execution. To invoke it,
 from the root directory of this repo, run:
 
-    python -m showlookup --id=LOOKUP_ID DHT_LOOKUPS_LOG_FILENAME
+    python -m tool showlookup --id=LOOKUP_ID DHT_LOOKUPS_LOG_FILENAME
 
 You should see something like:
 
