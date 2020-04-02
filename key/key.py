@@ -3,14 +3,14 @@ import base64
 
 def bits_in_byte(byte):
     return [
-        byte & 0x1 != 0,
-        byte & 0x2 != 0,
-        byte & 0x4 != 0,
-        byte & 0x8 != 0,
-        byte & 0x10 != 0,
-        byte & 0x20 != 0,
-        byte & 0x40 != 0,
         byte & 0x80 != 0,
+        byte & 0x40 != 0,
+        byte & 0x20 != 0,
+        byte & 0x10 != 0,
+        byte & 0x8 != 0,
+        byte & 0x4 != 0,
+        byte & 0x2 != 0,
+        byte & 0x1 != 0,
     ]
 
 
@@ -36,6 +36,10 @@ class Key(bytes):
 
     def __str__(self):
         return self.hex()
+
+    def base64str(self):
+        return self.hex()
+        # return str(base64.b64encode(self))
 
 
 def xor_key(x: Key, y: Key):
