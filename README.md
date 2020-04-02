@@ -12,9 +12,22 @@ from the root directory of this repo, run:
 
     python -m showlookup --id=LOOKUP_ID DHT_LOOKUPS_LOG_FILENAME
 
-You should see:
+You should see something like:
 
 ![Lookup visualization](https://raw.githubusercontent.com/libp2p/py-libp2p-xor/master/assets/lookup_sample.png)
+
+How to read this:
+
+* The X-axis represents time, measured in milliseconds since the start of the lookup
+* The Y-axis represents peers by their distance to the lookup target. The left Y-axis shows distance to target, while
+the right Y-axis shows peer XOR keys
+* _Grey horizontal grid lines_ indicate the peers that were encountered throughout the lookup
+* _Grey vertical grid lines_ indicate lookup events
+* _Thick horizontal lines_ represent queries:
+    * _Green_ queries are successful. When a query succeeds, the peers it delivers are represented as _small grey discs_ along the vertical grid line, corresponding to the query's end.
+    * _Red_ queries are unsuccessful
+    * _Blue_ queries did not complete and were aborted by the lookup's termination
+    * _Solid green_ queries are successful queries that form a start-to-finish lookup path
 
 ## Contribute
 
