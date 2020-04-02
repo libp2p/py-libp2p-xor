@@ -29,6 +29,31 @@ def plot_lookup(ax, m: LookupModel):
             color='#d0d0d0')  # grey
         ax.add_line(h_line)
 
+    # plot queries
+    for q in m.queries:
+        q_line = mlines.Line2D(
+            [
+                m.stamp_to_x(q.request.stamp_ns),
+                m.stamp_to_x(q.response.stamp_ns) if q.response else m.max_x(),
+            ],
+            [m.key_to_y(q.peer), m.key_to_y(q.peer)],
+            linestyle="--",
+            linewidth=2.0,
+            marker="o",
+            color=color_for_query_outcome(q))
+        ax.add_line(q_line)
+
+    # plot lookup path
+    for q in m.find_path():
+        q_line = mlines.Line2D(
+            [m.stamp_to_x(q.request.stamp_ns), m.stamp_to_x(q.response.stamp_ns)],
+            [m.key_to_y(q.peer), m.key_to_y(q.peer)],
+            linestyle="-",
+            linewidth=2.0,
+            marker="o",
+            color='#50c050')
+        ax.add_line(q_line)
+
     # plot state changes
     x, y, s, c = [], [], [], []
 
@@ -50,35 +75,12 @@ def plot_lookup(ax, m: LookupModel):
             push(e, k, '#c05050')  # red
         ax.scatter(x, y, s=s, c=c, alpha=1, zorder=5, marker='8')
 
-    # plot queries
-    for q in m.queries:
-        q_line = mlines.Line2D(
-            [
-                m.stamp_to_x(q.request.stamp_ns),
-                m.stamp_to_x(q.response.stamp_ns) if q.response else m.max_x(),
-            ],
-            [m.key_to_y(q.peer), m.key_to_y(q.peer)],
-            linestyle="--",
-            linewidth=2.0,
-            marker="D",
-            color=color_for_query_outcome(q))
-        ax.add_line(q_line)
-
-    # plot lookup path
-    for q in m.find_path():
-        q_line = mlines.Line2D(
-            [m.stamp_to_x(q.request.stamp_ns), m.stamp_to_x(q.response.stamp_ns)],
-            [m.key_to_y(q.peer), m.key_to_y(q.peer)],
-            linestyle="-",
-            linewidth=2.0,
-            marker="D",
-            color='#50c050')
-        ax.add_line(q_line)
-
     # customize axes
     set_xticks_for_model(ax, m)
-    set_yticks_for_model(ax, m)
-    style_axis(ax)
+    ax_right = ax.twinx()
+    set_left_yticks_for_model(ax, m)
+    set_right_yticks_for_model(ax_right, m)
+    style_axis(ax, ax_right)
     ax.set_title("lookup {}".format(m.id))
 
 
@@ -92,6 +94,7 @@ def color_for_query_outcome(q):
 
 
 def set_xticks_for_model(ax, m: LookupModel):
+    ax.set_xlabel('milliseconds since start')
     # ax.set_xticks([m.stamp_to_x(e.stamp_ns) for e in m.events])
     # ax.set_xticklabels([m.stamp_to_x(e.stamp_ns) for e in m.events], rotation='vertical')
     # span = m.max_x() - m.min_x()
@@ -99,7 +102,8 @@ def set_xticks_for_model(ax, m: LookupModel):
     ax.set_xlim([m.min_x(), m.max_x()])
 
 
-def set_yticks_for_model(ax, m: LookupModel):
+def set_left_yticks_for_model(ax, m: LookupModel):
+    ax.set_ylabel('distance to target')
     ax.set_yticks([m.key_to_y(u) for u in m.used])
     ax.set_yticklabels([m.key_to_y(u) for u in m.used])
     # span = m.max_y() - m.min_y()
@@ -107,8 +111,20 @@ def set_yticks_for_model(ax, m: LookupModel):
     ax.set_ylim([m.min_y(), m.max_y()])
 
 
-def style_axis(ax):
+def set_right_yticks_for_model(ax, m: LookupModel):
+    ax.set_ylabel('peer key')
+    ax.set_yticks([m.key_to_y(u) for u in m.used])
+    ax.set_yticklabels([u for u in m.used])
+    # span = m.max_y() - m.min_y()
+    # ax.set_ylim([m.min_y() - 0.1 * span, m.max_y() + 0.1 * span])
+    ax.set_ylim([m.min_y(), m.max_y()])
+
+
+def style_axis(ax_left, ax_right):
     # ax.grid(zorder=0)
-    ax.grid(False)
-    ax.tick_params(axis='both', which='major', labelsize=6)
-    ax.tick_params(axis='both', which='minor', labelsize=6)
+    ax_left.grid(False)
+    ax_left.tick_params(axis='both', which='major', labelsize=6)
+    ax_left.tick_params(axis='both', which='minor', labelsize=6)
+    ax_right.grid(False)
+    ax_right.tick_params(axis='both', which='major', labelsize=6)
+    ax_right.tick_params(axis='both', which='minor', labelsize=6)
