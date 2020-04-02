@@ -23,7 +23,7 @@ def plot_lookup_in_subplot(ax, m: LookupModel):
     # plot horizontal grid lines on peers that were used
     for u in m.used:
         h_line = mlines.Line2D(
-            [m.stamp_to_x(m.start_ns), m.stamp_to_x(m.stop_ns)],
+            [m.stamp_to_x(m.first_event_containing(u).stamp_ns), m.stamp_to_x(m.stop_ns)],
             [m.key_to_y(u), m.key_to_y(u)],
             linewidth=0.5,
             color='#d0d0d0')  # grey

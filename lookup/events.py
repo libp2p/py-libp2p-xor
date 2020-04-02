@@ -14,6 +14,19 @@ class StateUpdateEvent:
     queried: List[Key]
     unreachable: List[Key]
 
+    def contains(self, key):
+        if self.cause == key or self.source == key:
+            return True
+        if key in self.heard:
+            return True
+        if key in self.waiting:
+            return True
+        if key in self.queried:
+            return True
+        if key in self.unreachable:
+            return True
+        return False
+
 
 @dataclass
 class Event:
@@ -23,6 +36,11 @@ class Event:
     target: Key  # target of the lookup
     request: StateUpdateEvent
     response: StateUpdateEvent
+
+    def contains(self, key):
+        req = self.request.contains(key) if self.request else False
+        resp = self.response.contains(key) if self.response else False
+        return req or resp
 
     def heard(self):
         req = self.request.heard if self.request else []

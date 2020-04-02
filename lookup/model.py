@@ -29,6 +29,12 @@ class LookupModel:
     queries: List[QueryModel]
     events: List[Event]
 
+    def first_event_containing(self, key):
+        for e in self.events:
+            if e.contains(key):
+                return e
+        return None
+
     def stamp_to_x(self, stamp_ns: int):
         """Return the x-axis value for a given nanosecond timestamp."""
         # return milliseconds since the first event in the lookup
