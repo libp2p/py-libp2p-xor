@@ -62,12 +62,17 @@ class LookupModel:
         return closest
 
     def find_source_query(self, query):
+        """Returns the earliest query that provided the peer in the argument query."""
+        sources = []
         for q in self.queries:
-            # XXX: discover first source query
-            if q.response and q.peer != self.node and q.response.stamp_ns <= query.request.stamp_ns:  # XXX
+            if q.response and q.peer != self.node and q.response.stamp_ns <= query.request.stamp_ns:
                 if query.peer in q.response.heard():
-                    return q
-        return None
+                    sources.append(q)
+        if len(sources) == 0:
+            return None
+        else:
+            sources.sort(key=lambda q: q.response.stamp_ns)
+            return sources[0]
 
     def find_path(self):
         path = []
