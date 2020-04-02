@@ -67,8 +67,9 @@ def plot_lookup(ax, m: LookupModel):
     for e in m.events:
         for k in e.heard():
             push(e, k, '#d0d0d0')  # grey
-        for k in e.waiting():
-            push(e, k, '#ffffff')   # black
+        # waiting nodes are captured by the query visualization
+        # for k in e.waiting():
+        #     push(e, k, '#ffffff')   # black
         for k in e.queried():
             push(e, k, '#50c050')  # black
         for k in e.unreachable():
