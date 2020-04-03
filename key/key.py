@@ -16,6 +16,15 @@ def bits_in_byte(byte):
 
 
 class Key(bytes):
+    def bit_len(self):
+        return len(self) * 8
+
+    def bit_at(self, offset):
+        if self[offset // 8] & (1 << (7 - offset % 8)) == 0:
+            return 0
+        else:
+            return 1
+
     def to_float(self):
         f = 0.0
         s = 1.0
