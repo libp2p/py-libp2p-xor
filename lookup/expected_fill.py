@@ -1,6 +1,15 @@
-from .events import *
+from dataclasses import dataclass
+from typing import List
 import key
 import trie
+from .events import *
+
+
+@dataclass
+class FillReport:
+    bucket_fill: List[int]
+    num_not_unreachable: int
+    num_unreachable: int
 
 
 def compute_expected_fill(events: Event):
@@ -20,11 +29,14 @@ def compute_expected_fill(events: Event):
     for p in state:
         if state[p] in ["heard", "queried"]:
             eligible.add(p)
-    return bucket_fill_for_trie(events[0].node, eligible)
+    return FillReport(
+        bucket_fill=bucket_fill_for_trie(events[0].node, eligible),
+        num_unreachable=len([p for p in state if state[p] == "unreachable"]),
+        num_not_unreachable=len([p for p in state if state[p] != "unreachable"]),
+    )
 
 
 def bucket_fill_for_trie(node: key.Key, eligible: trie.Trie):
-    print("num eligible", eligible.size())
     fill = []
     finger = eligible
     for depth in range(node.bit_len()):

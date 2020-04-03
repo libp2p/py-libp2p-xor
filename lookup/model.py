@@ -18,6 +18,7 @@ QUERY_SUCCESS = "success"
 QUERY_UNREACHABLE = "unreachable"
 QUERY_UNFINISHED = "unfinished"
 
+
 @dataclass
 class LookupModel:
     id: str

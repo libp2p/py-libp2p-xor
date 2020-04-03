@@ -12,10 +12,12 @@ def show_lookup(args):
 
 def expected_fill(args):
     events = lookup.load_file(args.filename)  # all events across all lookups
-    fill = lookup.compute_expected_fill(events)
+    report = lookup.compute_expected_fill(events)
     # TODO: print # of events and # of lookups considered
-    for j in range(len(fill)):
-        print("bucket {} has expected fill={}".format(j + 1, fill[j]))
+    print("total not unreachable peers", report.num_not_unreachable)
+    print("total unreachable peers", report.num_unreachable)
+    for j in range(len(report.bucket_fill)):
+        print("bucket {} has expected bucket fill={}".format(j + 1, report.bucket_fill[j]))
 
 
 def lookup_latency(args):
