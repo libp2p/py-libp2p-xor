@@ -1,6 +1,7 @@
 import argparse
 import matplotlib.pyplot as plt
 import lookup
+import glob
 
 
 def show_lookup(args):
@@ -12,12 +13,19 @@ def show_lookup(args):
 def expected_fill(args):
     events = lookup.load_file(args.filename)  # all events across all lookups
     fill = lookup.compute_expected_fill(events)
+    # TODO: print # of events and # of lookups considered
     for j in range(len(fill)):
         print("bucket {} has expected fill={}".format(j + 1, fill[j]))
 
 
 def lookup_latency(args):
-    events = lookup.load_file(args.filename)  # all events across all lookups
+    files = glob.glob(args.fileglob)
+    events = []
+    for filepath in files:
+        file_events = lookup.load_file(filepath)
+        for e in file_events:
+            e.lookup_id = filepath + ":" + e.lookup_id
+        events.extend(file_events)
     latencies = []
     lookups = lookup.group_events_into_lookups(events)
     for l in lookups:
@@ -52,7 +60,7 @@ def parse_args():
 
     # parser for lookup latency
     parser_show_lookup = subparsers.add_parser("lookuplatency", help="Report the distribution of lookup latencies.")
-    parser_show_lookup.add_argument("filename", help="Lookup log file name")
+    parser_show_lookup.add_argument("fileglob", help="Glob for lookup log file names")
     parser_show_lookup.set_defaults(handler=lookup_latency)
 
     return parser.parse_args()
