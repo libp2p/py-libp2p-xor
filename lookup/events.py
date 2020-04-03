@@ -112,3 +112,14 @@ def load_file(filename: str):
 
 def filter_lookup(events: List[Event], lookup_id: str):
     return [ev for ev in events if ev.lookup_id == lookup_id]
+
+
+def group_events_into_lookups(events: List[Event]):
+    lkp = {}  # lookup_id -> ordered list of lookup events
+    for e in events:
+        g = lkp.get(e.lookup_id)
+        if not g:
+            g = []
+            lkp[e.lookup_id] = g
+        g.append(e)
+    return lkp

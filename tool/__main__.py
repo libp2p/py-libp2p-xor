@@ -1,5 +1,5 @@
 import argparse
-
+import matplotlib.pyplot as plt
 import lookup
 
 
@@ -13,7 +13,25 @@ def expected_fill(args):
     events = lookup.load_file(args.filename)  # all events across all lookups
     fill = lookup.compute_expected_fill(events)
     for j in range(len(fill)):
-        print("Bucket {}: expected_fill={}".format(j + 1, fill[j]))
+        print("bucket {} has expected fill={}".format(j + 1, fill[j]))
+
+
+def lookup_latency(args):
+    events = lookup.load_file(args.filename)  # all events across all lookups
+    latencies = []
+    lookups = lookup.group_events_into_lookups(events)
+    for l in lookups:
+        m = lookup.lookup_from_events(lookups[l], 1.0)
+        latencies.append((m.id, m.latency()))
+    print("found {} lookups".format(len(latencies)))
+    # plot histo
+    fig, axs = plt.subplots(1)
+    axs.hist([l[1] for l in latencies])
+    plt.show()
+    # list in ascending order of latency
+    latencies.sort(key=lambda l: l[1])
+    for l in latencies:
+        print("{} has latency {}".format(l[0], l[1]))
 
 
 def parse_args():
@@ -31,6 +49,11 @@ def parse_args():
     parser_show_lookup = subparsers.add_parser("expectedfill", help="Report expected routing table fill, based on lookup history.")
     parser_show_lookup.add_argument("filename", help="Lookup log file name")
     parser_show_lookup.set_defaults(handler=expected_fill)
+
+    # parser for lookup latency
+    parser_show_lookup = subparsers.add_parser("lookuplatency", help="Report the distribution of lookup latencies.")
+    parser_show_lookup.add_argument("filename", help="Lookup log file name")
+    parser_show_lookup.set_defaults(handler=lookup_latency)
 
     return parser.parse_args()
 

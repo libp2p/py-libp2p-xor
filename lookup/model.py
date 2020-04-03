@@ -18,7 +18,6 @@ QUERY_SUCCESS = "success"
 QUERY_UNREACHABLE = "unreachable"
 QUERY_UNFINISHED = "unfinished"
 
-
 @dataclass
 class LookupModel:
     id: str
@@ -37,16 +36,21 @@ class LookupModel:
                 return e
         return None
 
+    NANO_TO_MILI = 1000000.0
+
     def stamp_to_x(self, stamp_ns: int):
         """Return the x-axis value for a given nanosecond timestamp."""
         # return milliseconds since the first event in the lookup
-        return (stamp_ns - self.start_ns) / 1000000.0
+        return (stamp_ns - self.start_ns) / LookupModel.NANO_TO_MILI
+
+    def latency(self):
+        return (self.stop_ns - self.start_ns) / LookupModel.NANO_TO_MILI
 
     def min_x(self):
         return 0.0
 
     def max_x(self):
-        return (self.stop_ns - self.start_ns) / 1000000.0
+        return (self.stop_ns - self.start_ns) / LookupModel.NANO_TO_MILI
 
     def zoom(stretch, d):
         return math.log(stretch * d + 1) / math.log(stretch + 1)
