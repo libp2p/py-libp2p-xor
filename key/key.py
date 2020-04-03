@@ -46,9 +46,9 @@ def xor_key(x: Key, y: Key):
     return Key(bytes([x[k] ^ y[k] for k in range(len(x))]))
 
 
-def key_from_base64_optional(s: str):
-    return key_from_base64(s) if s else None
+def key_from_base64_kbucket_id_optional(s: str):
+    return key_from_base64_kbucket_id(s) if s else None
 
 
-def key_from_base64(s: str):
+def key_from_base64_kbucket_id(s: str):
     return Key(base64.b64decode(s))

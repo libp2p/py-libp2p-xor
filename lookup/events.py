@@ -80,12 +80,12 @@ def parse_state_update_from_json(data):
         return None
     else:
         return StateUpdateEvent(
-            cause=key_from_base64(data["Cause"]["Kad"]),
-            source=key_from_base64(data["Source"]["Kad"]),
-            heard=[key_from_base64(id["Kad"]) for id in data.get("Heard", [])],
-            waiting=[key_from_base64(id["Kad"]) for id in data.get("Waiting", [])],
-            queried=[key_from_base64(id["Kad"]) for id in data.get("Queried", [])],
-            unreachable=[key_from_base64(id["Kad"]) for id in data.get("Unreachable", [])],
+            cause=key_from_base64_kbucket_id(data["Cause"]["Kad"]),
+            source=key_from_base64_kbucket_id(data["Source"]["Kad"]),
+            heard=[key_from_base64_kbucket_id(id["Kad"]) for id in data.get("Heard", [])],
+            waiting=[key_from_base64_kbucket_id(id["Kad"]) for id in data.get("Waiting", [])],
+            queried=[key_from_base64_kbucket_id(id["Kad"]) for id in data.get("Queried", [])],
+            unreachable=[key_from_base64_kbucket_id(id["Kad"]) for id in data.get("Unreachable", [])],
         )
 
 
@@ -94,8 +94,8 @@ def parse_event_from_json(data):
     return Event(
         lookup_id=info["ID"],
         stamp_ns=data["ts"],
-        node=key_from_base64(info["Node"]["Kad"]),
-        target=key_from_base64(info["Key"]["Kad"]),
+        node=key_from_base64_kbucket_id(info["Node"]["Kad"]),
+        target=key_from_base64_kbucket_id(info["Key"]["Kad"]),
         request=parse_state_update_from_json(info.get("Request")),
         response=parse_state_update_from_json(info.get("Response")),
     )
