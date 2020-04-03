@@ -82,7 +82,7 @@ def plot_lookup_in_subplot(ax, m: LookupModel):
     set_left_yticks_for_model(ax, m)
     set_right_yticks_for_model(ax_right, m)
     style_axis(ax, ax_right)
-    ax.set_title("lookup {}".format(m.id))
+    ax.set_title("lookup {}\ntarget {}".format(m.id, m.target))
 
 
 def color_for_query_outcome(q):
