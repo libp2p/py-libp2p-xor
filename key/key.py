@@ -1,4 +1,5 @@
 import base64
+import os
 
 
 # bits_in_byte returns a list of bits in a byte, in descending order of significance.
@@ -46,6 +47,10 @@ class Key(bytes):
 
     def __str__(self):
         return self.hex()
+
+
+def choose_key(n):
+    return Key(bytearray(os.urandom(n)))
 
 
 def xor_key(x: Key, y: Key):
